@@ -43,6 +43,10 @@ Open the app and work down the screen:
 
 - Say **"Hassan Assistant"**, wait for *"Yes Hassan, how can I help you?"*, then speak.
 - Or say it all at once: **"Hassan Assistant, open WhatsApp"**.
+- Or tap the **🎤 Talk** button on the notification to talk without the wake word.
+
+Listening uses a custom pipeline (microphone + voice-activity detection + Groq
+Whisper speech-to-text) — no Google recognizer and no beeps.
 - Examples: *"open YouTube"*, *"message Ali on WhatsApp that I'm on my way"* (it reads
   the text back and asks before sending), *"set an alarm for 6:30"*, *"add a meeting
   tomorrow at 4pm"*, *"call Ammi"* (asks before dialling), *"search for petrol price"*.

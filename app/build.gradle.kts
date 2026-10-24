@@ -11,8 +11,8 @@ android {
         applicationId = "com.hassan.assistant"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
     }
 
     // A fixed key kept in the repo so every GitHub build can be installed

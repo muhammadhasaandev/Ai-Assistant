@@ -41,7 +41,6 @@ class MainActivity : Activity() {
     private lateinit var langGroup: RadioGroup
     private lateinit var rbUrdu: RadioButton
     private lateinit var rbEnglish: RadioButton
-    private lateinit var muteBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,12 +99,7 @@ class MainActivity : Activity() {
         root.addView(label("The assistant activates when it hears any of these."))
         root.addView(wakeField)
 
-        muteBox = CheckBox(this).apply {
-            text = "Silence the listening beep while waiting for the wake word"
-            setTextColor(Color.parseColor("#CFE6E1"))
-            isChecked = prefs.muteBeeps
-        }
-        root.addView(muteBox)
+        root.addView(label("Uses a custom listener (Groq Whisper) — no Google recognizer, no beeps."))
         root.addView(button("Save settings") { saveSettings(toast = true) })
 
         // --- permissions
@@ -128,8 +122,8 @@ class MainActivity : Activity() {
         root.addView(button("▶  Start assistant") { startAssistant() })
         root.addView(button("■  Stop assistant") { stopAssistant() })
 
-        root.addView(sub("Tip: say the wake word, wait for \"Yes ${prefs.userName}, how can I help?\", then speak. " +
-                "You can also say it all at once, e.g. \"Hassan Assistant, open WhatsApp\"."))
+        root.addView(sub("Tip: say the wake word and then speak, e.g. \"Hassan Assistant, open WhatsApp\". " +
+                "Or just tap the 🎤 Talk button on the notification any time to talk without the wake word."))
 
         scroll.addView(root)
         return scroll
@@ -207,7 +201,6 @@ class MainActivity : Activity() {
         prefs.model = modelField.text.toString()
         prefs.userName = nameField.text.toString().trim().ifEmpty { "Hassan" }
         prefs.wakeWords = wakeField.text.toString()
-        prefs.muteBeeps = muteBox.isChecked
         prefs.language = if (rbEnglish.isChecked) "en" else "ur"
         if (toast) Toast.makeText(this, "Saved.", Toast.LENGTH_SHORT).show()
     }
