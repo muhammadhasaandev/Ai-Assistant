@@ -8,6 +8,18 @@ class Prefs(context: Context) {
     private val sp: SharedPreferences =
         context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
 
+    init {
+        // Migrate anyone who had the old xAI/Grok defaults saved over to Groq.
+        val savedBase = sp.getString("api_base", "") ?: ""
+        val savedModel = sp.getString("model", "") ?: ""
+        if (savedBase.contains("x.ai") || savedModel.startsWith("grok")) {
+            sp.edit()
+                .putString("api_base", DEFAULT_BASE)
+                .putString("model", DEFAULT_MODEL)
+                .apply()
+        }
+    }
+
     var userName: String
         get() = sp.getString("user_name", "Hassan") ?: "Hassan"
         set(v) = sp.edit().putString("user_name", v).apply()
@@ -55,8 +67,8 @@ class Prefs(context: Context) {
         wakeWords.split(',', '،').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
     companion object {
-        const val DEFAULT_MODEL = "grok-4.5"
-        const val DEFAULT_BASE = "https://api.x.ai/v1"
+        const val DEFAULT_MODEL = "llama-3.3-70b-versatile"
+        const val DEFAULT_BASE = "https://api.groq.com/openai/v1"
         const val DEFAULT_WAKE =
             "hassan assistant, my assistant, hasan assistant, حسن اسسٹنٹ, حسن اسسٹینٹ, مائی اسسٹنٹ, مائی اسسٹینٹ"
     }

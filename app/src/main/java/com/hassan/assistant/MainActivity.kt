@@ -68,13 +68,14 @@ class MainActivity : Activity() {
         }
 
         root.addView(header("Hassan Assistant", 24, Color.parseColor("#48D9A8"), true))
-        root.addView(sub("Your voice-controlled phone assistant, powered by Grok."))
+        root.addView(sub("Your voice-controlled phone assistant, powered by Groq (free)."))
 
         // --- API key
-        root.addView(sectionTitle("1 · Grok API key"))
-        keyField = input("xai-...", prefs.apiKey, password = true)
+        root.addView(sectionTitle("1 · Groq API key"))
+        root.addView(label("Get a free key at console.groq.com (it starts with gsk_)."))
+        keyField = input("gsk_...", prefs.apiKey, password = true)
         root.addView(keyField)
-        modelField = input("Model (e.g. grok-4.5)", prefs.model)
+        modelField = input("Model (e.g. llama-3.3-70b-versatile)", prefs.model)
         root.addView(modelField)
         root.addView(button("Save & test API") { saveAndTest() })
 
@@ -213,7 +214,7 @@ class MainActivity : Activity() {
     private fun saveAndTest() {
         saveSettings(toast = false)
         if (prefs.apiKey.isBlank()) {
-            Toast.makeText(this, "Paste your Grok API key first.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Paste your Groq API key first.", Toast.LENGTH_LONG).show()
             return
         }
         Toast.makeText(this, "Testing…", Toast.LENGTH_SHORT).show()
@@ -231,7 +232,7 @@ class MainActivity : Activity() {
     private fun startAssistant() {
         saveSettings(toast = false)
         if (prefs.apiKey.isBlank()) {
-            Toast.makeText(this, "Add your Grok API key first.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Add your Groq API key first.", Toast.LENGTH_LONG).show()
             return
         }
         if (!hasPermission(Manifest.permission.RECORD_AUDIO)) {

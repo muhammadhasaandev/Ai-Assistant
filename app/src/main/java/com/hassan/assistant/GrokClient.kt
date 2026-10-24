@@ -18,7 +18,7 @@ class GrokClient(private val prefs: Prefs) {
 
     fun chat(messages: JSONArray, tools: JSONArray?): JSONObject {
         val key = prefs.apiKey
-        if (key.isBlank()) throw ApiException("Grok API key is not set. Open the app and paste your key.")
+        if (key.isBlank()) throw ApiException("Groq API key is not set. Open the app and paste your key.")
 
         val body = JSONObject().apply {
             put("model", prefs.model)
@@ -52,11 +52,11 @@ class GrokClient(private val prefs: Prefs) {
                 } catch (e: Exception) {
                     text
                 }
-                throw ApiException("Grok API error $code: ${msg.take(300)}")
+                throw ApiException("API error $code: ${msg.take(300)}")
             }
             val json = JSONObject(text)
             val choices = json.optJSONArray("choices")
-            if (choices == null || choices.length() == 0) throw ApiException("Grok returned no answer.")
+            if (choices == null || choices.length() == 0) throw ApiException("The model returned no answer.")
             return choices.getJSONObject(0).getJSONObject("message")
         } finally {
             conn.disconnect()

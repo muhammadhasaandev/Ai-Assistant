@@ -4,7 +4,7 @@ A voice-controlled Android assistant. It runs in the background, wakes up when y
 say **"Hassan Assistant"**, greets you, and then carries out spoken commands on your
 phone — opening apps, sending WhatsApp messages (after you confirm), setting alarms,
 adding calendar events, making calls, searching the web, and more. The thinking is
-done by **Grok (xAI)** through your own API key.
+done by **Groq** (free LLM API) through your own API key.
 
 ## How to get the APK (no PC setup needed)
 
@@ -24,8 +24,9 @@ the old one without uninstalling.
 
 Open the app and work down the screen:
 
-1. **Grok API key** – paste your `xai-...` key, pick the model (default `grok-4.5`),
-   tap **Save & test API**. You should see "API OK ✓".
+1. **Groq API key** – get a free key at console.groq.com (starts with `gsk_`),
+   paste it, keep the model (default `llama-3.3-70b-versatile`), tap
+   **Save & test API**. You should see "API OK ✓".
 2. **Language & name** – choose اردو or English, set the name it calls you, and the
    wake words.
 3. **Permissions** – tap each button and allow it:
