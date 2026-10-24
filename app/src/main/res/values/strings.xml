@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hassan Assistant</string>
+    <string name="accessibility_label">Hassan Assistant – phone control</string>
+    <string name="accessibility_description">Lets Hassan Assistant read the screen and tap, type and scroll in other apps when you ask it to by voice (for example: open WhatsApp, search a contact, type a message). It only acts on your spoken commands and asks before sending messages or making calls.</string>
+</resources>
