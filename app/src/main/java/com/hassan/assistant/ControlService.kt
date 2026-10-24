@@ -100,6 +100,28 @@ class ControlService : AccessibilityService() {
         return ok
     }
 
+    /** Press the keyboard's search / enter / go action on the focused text field. */
+    fun submitSearch(): Boolean {
+        val root = rootInActiveWindow ?: return false
+        var field = findNode(root) { it.isEditable && it.isFocused }
+        if (field == null) field = findNode(root) { it.isEditable }
+        var ok = false
+        if (field != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ok = field.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.id)
+        }
+        if (!ok) {
+            // fallback: look for a visible search / send / go button and click it
+            val btn = findNode(root) { n ->
+                val t = ((n.text?.toString() ?: "") + " " + (n.contentDescription?.toString() ?: "")).lowercase()
+                n.isClickable && (t.contains("search") || t.contains("go") || t.contains("send") ||
+                    t.contains("submit") || t.contains("تلاش") || t.contains("بھیجیں"))
+            }
+            ok = btn?.let { clickNode(it) } ?: false
+        }
+        root.recycle()
+        return ok
+    }
+
     fun pressBack(): Boolean = performGlobalAction(GLOBAL_ACTION_BACK)
     fun pressHome(): Boolean = performGlobalAction(GLOBAL_ACTION_HOME)
     fun openRecents(): Boolean = performGlobalAction(GLOBAL_ACTION_RECENTS)

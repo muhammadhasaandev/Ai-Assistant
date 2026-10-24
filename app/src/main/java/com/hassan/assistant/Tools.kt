@@ -19,7 +19,9 @@ object Tools {
         /** Say something to the user mid-task (e.g. "opening WhatsApp..."). */
         val say: (String) -> Unit,
         /** Pause so an app has time to open / a screen to settle. */
-        val waitMs: (Long) -> Unit
+        val waitMs: (Long) -> Unit,
+        /** Wipe the remembered conversation. */
+        val clearMemory: () -> Unit
     ) {
         val control: ControlService? get() = ControlService.get()
     }
@@ -39,8 +41,14 @@ object Tools {
             obj("text" to strProp("Visible text of the thing to tap")), listOf("text")))
 
         arr.put(fn("type_text",
-            "Type text into the currently open text field (for example a WhatsApp message box or a search box).",
-            obj("text" to strProp("The exact text to type")), listOf("text")))
+            "Type text into the currently open text field (for example a WhatsApp message box or a search box). Set submit=true to also press the keyboard Search/Enter afterwards so a search actually runs.",
+            obj("text" to strProp("The exact text to type"),
+                "submit" to boolProp("Press Search/Enter after typing (use true for search boxes)")),
+            listOf("text")))
+
+        arr.put(fn("run_search",
+            "Press the keyboard's Search/Enter/Go on the current text field to actually execute a search and show results. Call this after typing a query in a search box (YouTube, Play Store, browser, etc.).",
+            JSONObject(), emptyList()))
 
         arr.put(fn("press_key",
             "Press a hardware/navigation key: back, home, recents, enter, scroll_down, scroll_up.",
@@ -58,6 +66,10 @@ object Tools {
         arr.put(fn("whatsapp_search",
             "Search inside WhatsApp (for a contact or a chat). Opens WhatsApp if needed.",
             obj("query" to strProp("What to search for")), listOf("query")))
+
+        arr.put(fn("youtube_search",
+            "Open YouTube, run a search for the query, and show the results. After this, read_screen and tap a video to play it if asked.",
+            obj("query" to strProp("What to search on YouTube")), listOf("query")))
 
         arr.put(fn("set_alarm", "Set an alarm at a given time (24-hour clock).",
             obj("hour" to intProp("Hour 0-23"), "minute" to intProp("Minute 0-59"),
@@ -98,6 +110,21 @@ object Tools {
             "Open a phone settings screen: wifi, bluetooth, location, data, display, sound, battery, airplane.",
             obj("which" to strProp("Which settings screen")), listOf("which")))
 
+        arr.put(fn("flashlight", "Turn the phone's flashlight/torch on or off.",
+            obj("on" to boolProp("true = on, false = off")), listOf("on")))
+
+        arr.put(fn("set_volume", "Change media volume: up, down, mute, unmute, max.",
+            obj("action" to enumProp("Volume action", listOf("up","down","mute","unmute","max"))),
+            listOf("action")))
+
+        arr.put(fn("device_status",
+            "Get the current battery percentage, time and date. Use for questions like 'how much battery' or 'what time is it'.",
+            JSONObject(), emptyList()))
+
+        arr.put(fn("clear_memory",
+            "Forget the earlier conversation and start fresh. Use when the user says things like 'new topic', 'forget that', 'naya chat'.",
+            JSONObject(), emptyList()))
+
         arr.put(fn("finish",
             "Call this when the task is done or when you just want to answer the user in words. Put your spoken reply in 'reply'.",
             obj("reply" to strProp("What to say to the user, in their language")), listOf("reply")))
@@ -119,8 +146,16 @@ object Tools {
                 }
                 "type_text" -> {
                     val c = env.control ?: return accessibilityOff()
-                    if (c.typeText(args.getString("text"))) "Typed the text."
-                    else "No text field was focused. Tap the input box first."
+                    val typed = c.typeText(args.getString("text"))
+                    if (!typed) "No text field was focused. Tap the input box first."
+                    else if (args.optBoolean("submit", false)) {
+                        env.waitMs(400)
+                        if (c.submitSearch()) "Typed the text and ran the search." else "Typed the text (couldn't find a search button)."
+                    } else "Typed the text."
+                }
+                "run_search" -> {
+                    val c = env.control ?: return accessibilityOff()
+                    if (c.submitSearch()) "Search submitted." else "Couldn't find a search/enter button; try tapping the result directly."
                 }
                 "press_key" -> {
                     val c = env.control ?: return accessibilityOff()
@@ -138,6 +173,11 @@ object Tools {
                 "whatsapp_open_chat" -> whatsappOpenChat(args.getString("contact"), env)
                 "whatsapp_send_message" -> whatsappSend(args.getString("message"), env)
                 "whatsapp_search" -> whatsappSearch(args.getString("query"), env)
+                "youtube_search" -> youtubeSearch(args.getString("query"), env)
+                "flashlight" -> env.device.flashlight(args.optBoolean("on", true))
+                "set_volume" -> env.device.setVolume(args.getString("action"))
+                "device_status" -> env.device.deviceStatus()
+                "clear_memory" -> { env.clearMemory(); "Earlier conversation cleared." }
                 "set_alarm" -> env.device.setAlarm(
                     args.getInt("hour"), args.getInt("minute"), args.optString("label", null))
                 "set_timer" -> env.device.setTimer(args.getInt("seconds"), args.optString("label", null))
@@ -199,7 +239,22 @@ object Tools {
         env.waitMs(700)
         c.typeText(query)
         env.waitMs(1000)
-        return "Searched WhatsApp for \"$query\". Read the screen to see the results."
+        return "Searched WhatsApp for \"$query\". Results appear live — read the screen and tap the right one."
+    }
+
+    private fun youtubeSearch(query: String, env: Tools.Env): String {
+        val c = env.control ?: return accessibilityOff()
+        env.device.openApp("youtube")
+        env.waitMs(2500)
+        // tap the search icon/box
+        if (!c.tapByText("Search")) c.tapByText("search")
+        env.waitMs(900)
+        c.typeText(query)
+        env.waitMs(700)
+        val ran = c.submitSearch()
+        env.waitMs(1500)
+        return if (ran) "Searched YouTube for \"$query\" and opened the results. Read the screen and tap a video to play it."
+        else "Typed \"$query\" in YouTube search. Read the screen; you may need to tap the search key or a result."
     }
 
     // ---- calendar / call -----------------------------------------------
@@ -257,6 +312,7 @@ object Tools {
 
     private fun strProp(desc: String) = JSONObject().put("type", "string").put("description", desc)
     private fun intProp(desc: String) = JSONObject().put("type", "integer").put("description", desc)
+    private fun boolProp(desc: String) = JSONObject().put("type", "boolean").put("description", desc)
     private fun enumProp(desc: String, values: List<String>) =
         JSONObject().put("type", "string").put("description", desc).put("enum", JSONArray(values))
 }

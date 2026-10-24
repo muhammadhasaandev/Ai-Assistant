@@ -247,6 +247,48 @@ class DeviceTools(private val context: Context) {
         } catch (e: Exception) { "Could not open that settings screen." }
     }
 
+    // ---- quick device controls -----------------------------------------
+
+    fun flashlight(on: Boolean): String {
+        return try {
+            val cm = context.getSystemService(Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+            val id = cm.cameraIdList.firstOrNull { camId ->
+                cm.getCameraCharacteristics(camId)
+                    .get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            } ?: return "This phone has no flashlight."
+            cm.setTorchMode(id, on)
+            if (on) "Flashlight on." else "Flashlight off."
+        } catch (e: Exception) { "Could not change the flashlight." }
+    }
+
+    fun setVolume(action: String): String {
+        val am = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+        val stream = android.media.AudioManager.STREAM_MUSIC
+        return try {
+            when (action.lowercase()) {
+                "up" -> { am.adjustStreamVolume(stream, android.media.AudioManager.ADJUST_RAISE, 0); "Volume up." }
+                "down" -> { am.adjustStreamVolume(stream, android.media.AudioManager.ADJUST_LOWER, 0); "Volume down." }
+                "mute" -> { am.adjustStreamVolume(stream, android.media.AudioManager.ADJUST_MUTE, 0); "Muted." }
+                "unmute" -> { am.adjustStreamVolume(stream, android.media.AudioManager.ADJUST_UNMUTE, 0); "Unmuted." }
+                "max" -> { am.setStreamVolume(stream, am.getStreamMaxVolume(stream), 0); "Volume at maximum." }
+                else -> "Unknown volume action."
+            }
+        } catch (e: Exception) { "Could not change the volume." }
+    }
+
+    fun deviceStatus(): String {
+        val sb = StringBuilder()
+        try {
+            val bm = context.getSystemService(Context.BATTERY_SERVICE) as android.os.BatteryManager
+            val level = bm.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            sb.append("Battery: ").append(level).append("%. ")
+        } catch (e: Exception) {}
+        val now = java.util.Date()
+        sb.append("Time: ").append(SimpleDateFormat("h:mm a", Locale.getDefault()).format(now)).append(". ")
+        sb.append("Date: ").append(SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()).format(now)).append(".")
+        return sb.toString()
+    }
+
     /** Normalise a local number (leading 0) to international form for WhatsApp etc. */
     fun normaliseNumber(raw: String, countryCode: String): String {
         var n = raw.filter { it.isDigit() || it == '+' }

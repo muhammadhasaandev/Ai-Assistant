@@ -17,8 +17,12 @@ class WhisperClient(private val prefs: Prefs) {
 
     class ApiException(message: String) : Exception(message)
 
-    /** @param pcm16 little-endian 16-bit PCM mono samples. @param sampleRate e.g. 16000. */
-    fun transcribe(pcm16: ByteArray, sampleRate: Int): String {
+    /**
+     * @param pcm16 little-endian 16-bit PCM mono samples.
+     * @param sampleRate e.g. 16000.
+     * @param bias optional hint words (names, app names) to improve accuracy.
+     */
+    fun transcribe(pcm16: ByteArray, sampleRate: Int, bias: String? = null): String {
         val key = prefs.apiKey
         if (key.isBlank()) throw ApiException("Groq API key is not set.")
         if (pcm16.isEmpty()) return ""
@@ -42,6 +46,7 @@ class WhisperClient(private val prefs: Prefs) {
                 // language hint helps accuracy; omit "auto"
                 val lang = if (prefs.isUrdu) "ur" else "en"
                 writeField(out, boundary, "language", lang)
+                if (!bias.isNullOrBlank()) writeField(out, boundary, "prompt", bias)
                 // the audio file part
                 out.writeBytes("--$boundary\r\n")
                 out.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"audio.wav\"\r\n")

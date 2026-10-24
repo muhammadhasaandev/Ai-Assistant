@@ -41,12 +41,25 @@ Open the app and work down the screen:
 
 ## Using it
 
-- Say **"Hassan Assistant"**, wait for *"Yes Hassan, how can I help you?"*, then speak.
-- Or say it all at once: **"Hassan Assistant, open WhatsApp"**.
-- Or tap the **🎤 Talk** button on the notification to talk without the wake word.
+- Just say **"Hassan"** or **"assistant"** anywhere in a sentence — e.g. *"Hassan,
+  open WhatsApp"* — and it wakes and runs it. Or tap **🎤 Talk** on the notification.
+- **Continuous conversation:** once it wakes, it keeps listening for your next
+  command without needing the wake word again. Stay quiet or say *"bas" / "thank
+  you" / "bye"* to end the conversation.
+- **Memory:** it remembers the conversation — across wake-ups and restarts — so you
+  can refer back to earlier things. Say *"new topic"* / *"forget that"* to reset.
 
 Listening uses a custom pipeline (microphone + voice-activity detection + Groq
 Whisper speech-to-text) — no Google recognizer and no beeps.
+
+### What it can do
+
+- Open any app; run searches that actually execute (YouTube, Play Store, browser).
+- WhatsApp: open a chat, search, type and send a message (always confirms first).
+- Alarms, timers, calendar events, calls (confirms first), web search, maps.
+- Flashlight on/off, media volume, and quick status (battery, time, date).
+- Answer general questions in Urdu or English.
+- Control other apps by reading the screen and tapping/typing (Accessibility).
 - Examples: *"open YouTube"*, *"message Ali on WhatsApp that I'm on my way"* (it reads
   the text back and asks before sending), *"set an alarm for 6:30"*, *"add a meeting
   tomorrow at 4pm"*, *"call Ammi"* (asks before dialling), *"search for petrol price"*.
