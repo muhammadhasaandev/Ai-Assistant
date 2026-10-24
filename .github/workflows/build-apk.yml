@@ -21,13 +21,20 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install required SDK packages
+      # The ubuntu-latest runner ships with the Android SDK pre-installed and
+      # its licenses accepted. Make sure the platform/build-tools we need are
+      # present (sdkmanager is already on PATH); the Android Gradle Plugin will
+      # otherwise auto-download them.
+      - name: Ensure Android SDK packages
         run: |
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" >/dev/null
+          echo "ANDROID_HOME=$ANDROID_HOME  ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager || true)"; fi
+          echo "Using sdkmanager: $SDKMANAGER"
+          if [ -n "$SDKMANAGER" ]; then
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "platform-tools" || true
+          fi
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
