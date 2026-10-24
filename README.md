@@ -25,8 +25,9 @@ the old one without uninstalling.
 Open the app and work down the screen:
 
 1. **Groq API key** – get a free key at console.groq.com (starts with `gsk_`),
-   paste it, keep the model (default `llama-3.3-70b-versatile`), tap
-   **Save & test API**. You should see "API OK ✓".
+   paste it, keep the model (default `openai/gpt-oss-120b`; alternatives
+   `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`), tap **Save & test API**. You
+   should see "API OK ✓". (Model names depend on your Groq account's catalog.)
 2. **Language & name** – choose اردو or English, set the name it calls you, and the
    wake words.
 3. **Permissions** – tap each button and allow it:

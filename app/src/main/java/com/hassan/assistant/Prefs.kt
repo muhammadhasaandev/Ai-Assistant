@@ -12,7 +12,8 @@ class Prefs(context: Context) {
         // Migrate anyone who had the old xAI/Grok defaults saved over to Groq.
         val savedBase = sp.getString("api_base", "") ?: ""
         val savedModel = sp.getString("model", "") ?: ""
-        if (savedBase.contains("x.ai") || savedModel.startsWith("grok")) {
+        if (savedBase.contains("x.ai") || savedModel.startsWith("grok") ||
+            savedModel.startsWith("llama-3.3")) {
             sp.edit()
                 .putString("api_base", DEFAULT_BASE)
                 .putString("model", DEFAULT_MODEL)
@@ -67,7 +68,7 @@ class Prefs(context: Context) {
         wakeWords.split(',', '،').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
     companion object {
-        const val DEFAULT_MODEL = "llama-3.3-70b-versatile"
+        const val DEFAULT_MODEL = "openai/gpt-oss-120b"
         const val DEFAULT_BASE = "https://api.groq.com/openai/v1"
         const val DEFAULT_WAKE =
             "hassan assistant, my assistant, hasan assistant, حسن اسسٹنٹ, حسن اسسٹینٹ, مائی اسسٹنٹ, مائی اسسٹینٹ"

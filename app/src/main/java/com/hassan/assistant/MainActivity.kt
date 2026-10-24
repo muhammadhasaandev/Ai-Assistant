@@ -75,7 +75,8 @@ class MainActivity : Activity() {
         root.addView(label("Get a free key at console.groq.com (it starts with gsk_)."))
         keyField = input("gsk_...", prefs.apiKey, password = true)
         root.addView(keyField)
-        modelField = input("Model (e.g. llama-3.3-70b-versatile)", prefs.model)
+        modelField = input("Model", prefs.model)
+        root.addView(label("Works: openai/gpt-oss-120b (best), openai/gpt-oss-20b, qwen/qwen3.8-27b"))
         root.addView(modelField)
         root.addView(button("Save & test API") { saveAndTest() })
 
